@@ -90,6 +90,7 @@ class Cran:
         queryDocRelevancyForQuery = []
         for qdr in self.getQueryDocRelevancyForQuery(numQuery):
             if(qdr["numQuery"] == int(numQuery)):
+                # print("docs achados para essa query: "+str(qdr))
                 queryDocRelevancyForQuery.append(qdr["numDoc"])
         return queryDocRelevancyForQuery
 
