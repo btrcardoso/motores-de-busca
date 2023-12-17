@@ -18,7 +18,10 @@ documentsCran = cranObj.list
 es = Search()
 
 ''' indexação de documentos do ElasticSearch. Executar somente uma vez. '''
+esBeforeIndex = timeit.default_timer()
 # es.reindexCran(documentsCran)
+esAfterIndex = timeit.default_timer()
+esIndexTime = esAfterIndex - esBeforeIndex
 
 ''' ------------------------------------------------------ Whoosh ------------------------------------------------------ '''
 
@@ -26,7 +29,10 @@ es = Search()
 searchWhooshObj = SearchWhoosh()
 
 ''' indexação de documentos do Whoosh'''
+wBeforeIndex = timeit.default_timer()
 searchWhooshObj.addDocuments(documentsCran)
+wAfterIndex = timeit.default_timer()
+wIndexTime = wAfterIndex - wBeforeIndex
 
 ''' ------------------------------------------------------ Busca ------------------------------------------------------ '''
 
@@ -67,7 +73,7 @@ for queryObj in queriesCran:
     )
     esAfterSearch = timeit.default_timer()
     esSearchTime = esAfterSearch - esBeforeSearch
-    esResultList = response['hits']['hits'] # a lista de resultados encontrados
+    esResultList = response['hits']['hits'] 
     esQueryDocs = []
     for result in esResultList:
         source = result['_source']
@@ -77,7 +83,7 @@ for queryObj in queriesCran:
 
     ''' faz a busca no whoosh'''
     wBeforeSearch = timeit.default_timer()
-    wQueryDocs = searchWhooshObj.search(query)
+    wQueryDocs = searchWhooshObj.search(query) #[:k]
     wAfterSearch = timeit.default_timer()
     wSearchTime = wAfterSearch - wBeforeSearch
     # print("Documentos parecidos com a query, baseados no Whoosh: "+str(wQueryDocs))
@@ -103,8 +109,11 @@ for queryObj in queriesCran:
 ''' ------------------------------------------------------ Resultados ------------------------------------------------------ '''
 
 print("\nResultados ElasticSearch: ")
+print("Indexação: "+str(esIndexTime))
 pprint(esResults)
+
 print("\nResultados Whoosh: ")
+print("Indexação: "+str(wIndexTime))
 pprint(wResults)
 
 
