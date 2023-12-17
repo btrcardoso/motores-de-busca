@@ -5,31 +5,8 @@ from whoosh.query import *
 
 class SearchWhoosh:
     def __init__(self):
-        schema = Schema(title=TEXT(stored=True), path=ID(stored=True), content=TEXT) # define o schema (estrutura de dados) que guardaremos o arquivo
+        schema = Schema(content=TEXT, doc_num=TEXT(stored=True), name=TEXT(stored=True), summary=TEXT, created_on=TEXT, updated_at=TEXT ) # define o schema (estrutura de dados) que guardaremos o arquivo
         self.ix = create_in("indexdir", schema)
-        
-        documents = [
-            {
-                "title": "First document",
-                "path": "/a",
-                "content": "This is the first document we've added happiness!"
-            },
-            {
-                "title": "Second document",
-                "path": "/b",
-                "content": "The second one is even more interesting!"
-            }
-        ]
-
-        self.addDocuments(documents)
-
-        # acho que ele nao busca stop-words
-        self.search("which document is more interesting")
-
-        # with self.ix.searcher() as searcher:
-        #     myquery = And([Term("content", u"even"), Term("content", "one")])
-        #     results = searcher.search(myquery)
-        #     print(results[0])
     
     def search(self, user_query):
         user_query = user_query.replace(" ", " OR ")
@@ -43,7 +20,8 @@ class SearchWhoosh:
     def addDocuments(self, documents):
         writer = self.ix.writer()
         for document in documents:
-            writer.add_document(title=document["title"], path=document["path"], content=document["content"])
+            writer.add_document(content=document["content"], doc_num=document["doc_num"], name=document["name"], summary=document["summary"], created_on=document["created_on"], updated_at=document["updated_at"])
+            # writer.add_document(title=document["title"], path=document["path"], content=document["content"])
         writer.commit()
     
     def searchPlugin(self, text):

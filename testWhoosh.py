@@ -9,8 +9,10 @@ import timeit
 ''' cria o objeto Cran para os x primeiros documentos do arquivo '''
 cranObj = Cran(400)
 documentsCran = cranObj.list
-print(documentsCran[0])
 
 ''' ------------------------------------------------------ Whoosh ------------------------------------------------------ '''
 
 searchWhooshObj = SearchWhoosh()
+
+''' indexação de documentos, execute só uma vez '''
+# searchWhooshObj.addDocuments(documentsCran)
