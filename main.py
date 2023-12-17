@@ -1,5 +1,6 @@
 from cran import Cran
 from search import Search
+from searchWhoosh import SearchWhoosh
 from pprint import pprint
 import timeit
 
@@ -16,15 +17,26 @@ documentsCran = cranObj.list
 ''' cria objeto de busca no ElasticSearch '''
 es = Search()
 
-''' etapa de indexação dos documentos. Executar somente uma vez. '''
-# response = es.reindexCran(documentsCran)
-# print(response)
+''' indexação de documentos do ElasticSearch. Executar somente uma vez. '''
+# es.reindexCran(documentsCran)
+
+''' ------------------------------------------------------ Whoosh ------------------------------------------------------ '''
+
+''' cria objeto do Whoosh '''
+searchWhooshObj = SearchWhoosh()
+
+''' indexação de documentos do Whoosh'''
+searchWhooshObj.addDocuments(documentsCran)
+
+''' ------------------------------------------------------ Busca ------------------------------------------------------ '''
+
 
 ''' busca as queries do arquivo de queries '''
 queriesCran = cranObj.getQueries(10) # (365)
 
-''' array para armazenar informações das consultas no ElasticSearch. Devem seguir o padrão: {numQuery, precision, recall, k, searchTime} '''
+''' array para armazenar informações das consultas no ElasticSearch e no Whoosh. Devem seguir o padrão: {numQuery, precision, recall, k, searchTime} '''
 esResults = []
+wResults = []
 
 for queryObj in queriesCran:
 
@@ -45,7 +57,7 @@ for queryObj in queriesCran:
     k=30
 
     ''' faz a busca no elastic search '''
-    beforeSearch = timeit.default_timer()
+    esBeforeSearch = timeit.default_timer()
     response = es.search(query={
             'multi_match': {
                 'query': query,
@@ -53,37 +65,46 @@ for queryObj in queriesCran:
             }
         }, size=k, from_=from__
     )
-    afterSearch = timeit.default_timer()
-    searchTime = afterSearch - beforeSearch
-
-    ''' a lista de resultados encontrados '''
-    resultList = response['hits']['hits'] 
-
-    ''' Documentos parecidos com a query, baseados no ElasticSearch '''
+    esAfterSearch = timeit.default_timer()
+    esSearchTime = esAfterSearch - esBeforeSearch
+    esResultList = response['hits']['hits'] # a lista de resultados encontrados
     esQueryDocs = []
-    for result in resultList:
+    for result in esResultList:
         source = result['_source']
         doc_num = source['doc_num']
         esQueryDocs.append(int(doc_num))
     # print("Documentos parecidos com a query, baseados no ElasticSearch: "+str(esQueryDocs))
 
-    ''' obtém relações entre os dois conjuntos de documentos '''
-    EsQueryDocsSet = set(esQueryDocs)
+    ''' faz a busca no whoosh'''
+    wBeforeSearch = timeit.default_timer()
+    wQueryDocs = searchWhooshObj.search(query)
+    wAfterSearch = timeit.default_timer()
+    wSearchTime = wAfterSearch - wBeforeSearch
+    # print("Documentos parecidos com a query, baseados no Whoosh: "+str(wQueryDocs))
+
+    ''' set de documentos relevantes à query no cranqrel'''
     cranQueryDocsSet = set(cranQueryDocs)
-    inter = EsQueryDocsSet.intersection(cranQueryDocsSet)
-    union = EsQueryDocsSet.union(cranQueryDocsSet)
-    # print("Interseção: "+str(inter))
+
+    ''' obtém relações entre os documentos do cranqrel e os documentos encontrados pelo ElasticSearch '''
+    esQueryDocsSet = set(esQueryDocs)
+    esInter = esQueryDocsSet.intersection(cranQueryDocsSet)
+    esPrecision = ( len(esInter) / k ) * 100                        # precision@k: dos k documentos recuperados x por cento são relevantes
+    esRecall = ( len(esInter) / len(cranQueryDocsSet) ) * 100       # recall@k: x por cento do número total de itens relevantes do cranqrel aparecem nos primeiros k resultados do ElasticSearch.
+    esResults.append({"numQuery": numQuery, "precision": esPrecision, "recall": esRecall, "k":k, "searchTime":esSearchTime})
     
-    ''' precision@k: dos k documentos recuperados x por cento são relevantes '''
-    precision = ( len(inter) / k ) * 100
-    # print("Precision@k: "+str(precision))
+    ''' obtém relações entre os documentos do cranqrel e os documentos encontrados pelo Whoosh '''
+    wQueryDocsSet = set(wQueryDocs)
+    wInter = wQueryDocsSet.intersection(cranQueryDocsSet)
+    wPrecision = ( len(wInter) / k ) * 100
+    wRecall = ( len(wInter) / len(cranQueryDocsSet) ) * 100
+    wResults.append({"numQuery": numQuery, "precision": wPrecision, "recall": wRecall, "k":k, "searchTime":wSearchTime})
 
-    ''' recall@k: x por cento do número total de itens relevantes do cranqrel aparecem nos primeiros k resultados do ElasticSearch. '''
-    recall = ( len(inter) / len(cranQueryDocsSet) ) * 100
-    # print("Recall@k: "+str(recall))
 
-    esResults.append({"numQuery": numQuery, "precision": precision, "recall": recall, "k":k, "searchTime":searchTime})
+''' ------------------------------------------------------ Resultados ------------------------------------------------------ '''
 
+print("\nResultados ElasticSearch: ")
 pprint(esResults)
+print("\nResultados Whoosh: ")
+pprint(wResults)
 
 

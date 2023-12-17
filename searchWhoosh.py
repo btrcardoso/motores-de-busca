@@ -16,7 +16,7 @@ class SearchWhoosh:
             results = searcher.search(query, terms=True)
             if(results):
                 for result in results:
-                    docsFound.append(result['doc_num'])
+                    docsFound.append(int(result['doc_num']))
             return docsFound
 
     def addDocuments(self, documents):
