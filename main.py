@@ -87,8 +87,3 @@ for queryObj in queriesCran:
 pprint(esResults)
 
 
-'''whoosh'''
-
-# from searchWhoosh import SearchWhoosh
-
-# searchWhooshObj = SearchWhoosh()

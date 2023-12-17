@@ -12,7 +12,7 @@ class SearchWhoosh:
             {
                 "title": u"First document",
                 "path": u"/a",
-                "content": u"This is the first document we've added!"
+                "content": u"This is the first document we've added happiness!"
             },
             {
                 "title": u"Second document",
@@ -23,7 +23,8 @@ class SearchWhoosh:
 
         self.addDocuments(documents)
 
-        self.search("which more")
+        # acho que ele nao busca stop-words
+        self.search("which document is more interesting")
 
         # with self.ix.searcher() as searcher:
         #     myquery = And([Term("content", u"even"), Term("content", "one")])
@@ -31,10 +32,13 @@ class SearchWhoosh:
         #     print(results[0])
     
     def search(self, user_query):
+        user_query = user_query.replace(" ", " OR ")
         with self.ix.searcher() as searcher:
             query = QueryParser("content", self.ix.schema).parse(user_query)
             results = searcher.search(query, terms=True)
-            print(results[0])
+            if(results):
+                for result in results:
+                    print(result)
 
     def addDocuments(self, documents):
         writer = self.ix.writer()
