@@ -10,14 +10,14 @@ class SearchWhoosh:
         
         documents = [
             {
-                "title": u"First document",
-                "path": u"/a",
-                "content": u"This is the first document we've added happiness!"
+                "title": "First document",
+                "path": "/a",
+                "content": "This is the first document we've added happiness!"
             },
             {
-                "title": u"Second document",
-                "path": u"/b",
-                "content": u"The second one is even more interesting!"
+                "title": "Second document",
+                "path": "/b",
+                "content": "The second one is even more interesting!"
             }
         ]
 

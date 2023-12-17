@@ -18,7 +18,7 @@ class Cran:
             #print(f"Tempo de indexar: {indexTime}")
 
         # trasnformando documentos na estrutura formatada
-        self.list = [{'content': content.split(" ")[1], 'doc_num':content.split(" ")[0], 'name': name, 'summary': content, 'created_on':'2023-12-10', 'updated_at':'2023-12-10'} for content, name in zip(self.collectionDocs[:qtDocs], self.collectionDocsNames[:qtDocs])]
+        self.list = [{'content': content, 'doc_num':content.split(" ")[0], 'name': name, 'summary': content, 'created_on':'2023-12-10', 'updated_at':'2023-12-10'} for content, name in zip(self.collectionDocs[:qtDocs], self.collectionDocsNames[:qtDocs])]
         
         # pegando o conjunto de treino (pergunta-documento-relevancia do doc pra pergunta)
         self.queriesDocsRelevancy = []

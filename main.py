@@ -42,14 +42,14 @@ for queryObj in queriesCran:
     # k = len(cranQueryDocs) 
     # if(k<=0):
     #     k=1
-    k=49
+    k=30
 
     ''' faz a busca no elastic search '''
     beforeSearch = timeit.default_timer()
     response = es.search(query={
             'multi_match': {
                 'query': query,
-                'fields': ['name', 'summary', 'content'],
+                'fields': ['content'],
             }
         }, size=k, from_=from__
     )
