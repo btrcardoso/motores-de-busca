@@ -15,4 +15,7 @@ documentsCran = cranObj.list
 searchWhooshObj = SearchWhoosh()
 
 ''' indexação de documentos, execute só uma vez '''
-# searchWhooshObj.addDocuments(documentsCran)
+searchWhooshObj.addDocuments(documentsCran)
+
+result = searchWhooshObj.search("aeroelastic models of heated high speed aircraft")
+print(result)

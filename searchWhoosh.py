@@ -10,12 +10,14 @@ class SearchWhoosh:
     
     def search(self, user_query):
         user_query = user_query.replace(" ", " OR ")
+        docsFound = []
         with self.ix.searcher() as searcher:
             query = QueryParser("content", self.ix.schema).parse(user_query)
             results = searcher.search(query, terms=True)
             if(results):
                 for result in results:
-                    print(result)
+                    docsFound.append(result['doc_num'])
+            return docsFound
 
     def addDocuments(self, documents):
         writer = self.ix.writer()
