@@ -35,14 +35,14 @@ for queryObj in queriesCran:
     # print("\n\nBuscando respostas da query '("+str(numQuery)+") "+ query + "': ")
 
     ''' Documentos parecidos com a query, baseados no cranqrel '''
-    # print("Documentos parecidos com a query, baseados no cranqrel: ")
     cranQueryDocs = cranObj.getRelevantDocsToQuery(numQuery)
-    # print(cranQueryDocs)
+    # print("Documentos parecidos com a query, baseados no cranqrel: "+str(cranQueryDocs))
 
     ''' Setando o valor de documentos a serem trazidos '''
-    k = len(cranQueryDocs) # 10
-    if(len(cranQueryDocs) < k):
-        k = len(cranQueryDocs)
+    # k = len(cranQueryDocs) 
+    # if(k<=0):
+    #     k=1
+    k=49
 
     ''' faz a busca no elastic search '''
     beforeSearch = timeit.default_timer()
@@ -60,13 +60,12 @@ for queryObj in queriesCran:
     resultList = response['hits']['hits'] 
 
     ''' Documentos parecidos com a query, baseados no ElasticSearch '''
-    # print("Documentos parecidos com a query, baseados no ElasticSearch: ")
     esQueryDocs = []
     for result in resultList:
         source = result['_source']
         doc_num = source['doc_num']
         esQueryDocs.append(int(doc_num))
-    # print(esQueryDocs)
+    # print("Documentos parecidos com a query, baseados no ElasticSearch: "+str(esQueryDocs))
 
     ''' obtém relações entre os dois conjuntos de documentos '''
     EsQueryDocsSet = set(esQueryDocs)
